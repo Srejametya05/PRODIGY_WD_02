@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="stopwatch">
+        <div id="display">00:00:00</div>
+        <button onclick="startPause()">Start</button>
+        <button onclick="pause()">Pause</button>
+        <button onclick="reset()">Reset</button>
+    </div>
+    <div class="lap-times">
+        <ul id="lapList"></ul>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+.stopwatch {
+    margin-bottom: 20px;
+}
+
+#display {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+button {
+    font-size: 1em;
+    padding: 10px 20px;
+    margin: 0 5px;
+}
+
+.lap-times {
+    text-align: left;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.lap-times ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+
+let timer; // To store the interval of the stopwatch
+let running = false; // Flag to track if the stopwatch is running
+let startTime;
+let elapsedTime = 0;
+let lapCounter = 1;
+
+function formatTime(ms) {
+    let date = new Date(ms);
+    let minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    let seconds = date.getUTCSeconds().toString().padStart(2, '0');
+    let milliseconds = (date.getUTCMilliseconds() / 10).toFixed(0).toString().padStart(2, '0');
+    return `${minutes}:${seconds}:${milliseconds}`;
+}
+
+function printTime() {
+    document.getElementById('display').textContent = formatTime(elapsedTime);
+}
+
+function startPause() {
+    if (running) {
+        clearInterval(timer);
+        running = false;
+    } else {
+        if (elapsedTime === 0) {
+            startTime = Date.now();
+        } else {
+            startTime = Date.now() - elapsedTime;
+        }
+        timer = setInterval(function() {
+            elapsedTime = Date.now() - startTime;
+            printTime();
+        }, 10);
+        running = true;
+    }
+}
+
+function pause() {
+    clearInterval(timer);
+    running = false;
+}
+
+function reset() {
+    clearInterval(timer);
+    running = false;
+    elapsedTime = 0;
+    printTime();
+    lapCounter = 1;
+    document.getElementById('lapList').innerHTML = '';
+}
+
+function lap() {
+    let lapTime = formatTime(elapsedTime);
+    let lapItem = document.createElement('li');
+    lapItem.textContent = `Lap ${lapCounter}: ${lapTime}`;
+    document.getElementById('lapList').appendChild(lapItem);
+    lapCounter++;
+}
